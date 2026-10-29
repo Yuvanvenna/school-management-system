@@ -12,14 +12,14 @@ import { HomeworkTab } from '@/components/dashboard/HomeworkTab';
 import { ReportCardTab } from '@/components/dashboard/ReportCardTab';
 import { RosterImportTab } from '@/components/dashboard/RosterImportTab';
 import { AuditTrailTab } from '@/components/dashboard/AuditTrailTab';
-import { Landmark, ShieldCheck } from 'lucide-react';
+import { Landmark, ShieldCheck, CheckCircle2, Lock } from 'lucide-react';
 
 export default function Home() {
   const store = useSchoolStore();
   const [currentTab, setCurrentTab] = useState<TabType>('overview');
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-900/5 text-slate-900 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
       {/* Official Government Navbar */}
       <Navbar
         schools={store.schools}
@@ -32,7 +32,7 @@ export default function Home() {
       />
 
       {/* Main Body Layout */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex flex-col md:flex-row w-full max-w-[1520px] mx-auto shadow-xs">
         {/* Role-Aware Sidebar */}
         <Sidebar
           currentTab={currentTab}
@@ -42,7 +42,7 @@ export default function Home() {
         />
 
         {/* Dynamic Workspace Container */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {currentTab === 'overview' && (
             <OverviewTab
               activeSchool={store.activeSchool}
@@ -123,21 +123,30 @@ export default function Home() {
       </div>
 
       {/* Official Government Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 text-xs py-4 px-6 no-print">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
-          <div className="flex items-center space-x-2">
-            <Landmark className="w-4 h-4 text-amber-400" />
-            <span className="text-slate-300 font-medium">
-              National Institutional Education Portal • Hosted by National Informatics Centre (NIC)
-            </span>
+      <footer className="bg-slate-950 border-t border-slate-800 text-slate-400 text-xs py-5 px-6 no-print mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-6 h-6 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+              <Landmark className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <span className="text-slate-300 font-semibold">
+                Unified National Institutional Education Platform
+              </span>
+              <span className="text-slate-400 hidden md:inline ml-1.5">
+                • Directorate of School Education & Literacy (NIC Cloud Engine)
+              </span>
+            </div>
           </div>
-          <div className="flex items-center space-x-4 text-slate-400 font-mono">
-            <span className="flex items-center space-x-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>ISO 27001 / CERT-IN AUDITED</span>
+          <div className="flex flex-wrap items-center gap-3 text-slate-400 font-mono text-[10px]">
+            <span className="flex items-center space-x-1 text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
+              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span>ISO 27001 AUDITED</span>
             </span>
-            <span>•</span>
-            <span>TENANT ID: {store.activeSchool.code}</span>
+            <span className="text-slate-600">•</span>
+            <span>TENANT: {store.activeSchool.code}</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-amber-400">SESSION: 2026-27</span>
           </div>
         </div>
       </footer>

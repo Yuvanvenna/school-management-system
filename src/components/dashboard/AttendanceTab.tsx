@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   CalendarCheck2, 
   Check, 
@@ -12,14 +12,17 @@ import {
   Edit3,
   Calendar,
   Layers,
-  Sparkles
+  Sparkles,
+  Users,
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
 import { 
   ClassSection, 
   StudentProfile, 
   AttendanceSession, 
   AttendanceStatus, 
-  Role,
+  Role, 
   User 
 } from '@/types';
 
@@ -45,9 +48,16 @@ export function AttendanceTab({
   onRecordAttendance
 }: AttendanceTabProps) {
   const [selectedClassId, setSelectedClassId] = useState<string>(classes[0]?.id || '');
-  const [attendanceDate, setAttendanceDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
+  const [attendanceDate, setAttendanceDate] = useState<string>('2026-10-19');
+
+  useEffect(() => {
+    try {
+      setAttendanceDate(new Date().toISOString().split('T')[0]);
+    } catch {
+      // fallback
+    }
+  }, []);
+
   const [mode, setMode] = useState<'DAILY' | 'PERIOD'>('DAILY');
   const [selectedPeriod, setSelectedPeriod] = useState<number>(1);
   const [remarks, setRemarks] = useState<Record<string, string>>({});
@@ -71,7 +81,7 @@ export function AttendanceTab({
   const [statuses, setStatuses] = useState<Record<string, AttendanceStatus>>({});
 
   // Sync statuses when class, date, period or existingSession changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (existingSession) {
       const initialMap: Record<string, AttendanceStatus> = {};
       const remarksMap: Record<string, string> = {};
@@ -152,40 +162,41 @@ export function AttendanceTab({
 
   return (
     <div className="space-y-6">
-      {/* Title & Banner */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+      {/* Title & Banner Card */}
+      <div className="glass-card rounded-2xl p-6 border border-slate-200/90 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2 text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1">
-              <CalendarCheck2 className="w-4 h-4 text-amber-600" />
-              <span>Official Daily & Period Attendance Engine</span>
+            <div className="flex items-center space-x-2 text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">
+              <CalendarCheck2 className="w-4 h-4 text-amber-500" />
+              <span>Official Institutional Attendance Engine</span>
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
               Class Attendance Registration & Verification
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Implements double-entry protection on (Class, Date, Period) with automated audit traceability for post-finalization adjustments.
+            <p className="text-xs text-slate-500 mt-1 max-w-2xl">
+              Double-entry protection on (Class, Date, Period) prevents accidental duplicates. Post-finalization changes generate mandatory audit entries.
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <span className="text-xs font-mono bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
-              Actor: <span className="font-semibold text-slate-900">{currentUser.name}</span>
+          <div className="flex items-center space-x-3 self-start md:self-center">
+            <span className="text-xs font-mono bg-slate-100 text-slate-700 px-3.5 py-1.5 rounded-xl border border-slate-200 flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Officer: <strong className="text-slate-900">{currentUser.name}</strong></span>
             </span>
           </div>
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Class Selector */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Target Class & Section
             </label>
             <select
               value={selectedClassId}
               onChange={(e) => setSelectedClassId(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 shadow-xs cursor-pointer transition-all"
             >
               {classes.map(c => (
                 <option key={c.id} value={c.id}>
@@ -197,28 +208,28 @@ export function AttendanceTab({
 
           {/* Date Picker */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Attendance Date
             </label>
             <input
               type="date"
               value={attendanceDate}
               onChange={(e) => setAttendanceDate(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 shadow-xs cursor-pointer transition-all font-mono"
             />
           </div>
 
           {/* Mode Selector (Daily vs Period-wise) */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Tracking Granularity
             </label>
-            <div className="flex rounded-lg border border-slate-300 bg-slate-50 p-0.5 text-xs">
+            <div className="flex rounded-xl border border-slate-200 bg-slate-100/70 p-1 text-xs">
               <button
                 type="button"
                 onClick={() => setMode('DAILY')}
-                className={`flex-1 py-1.5 rounded-md font-medium text-center transition cursor-pointer ${
-                  mode === 'DAILY' ? 'bg-white text-slate-900 font-semibold shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all cursor-pointer ${
+                  mode === 'DAILY' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Daily Roll Call
@@ -226,8 +237,8 @@ export function AttendanceTab({
               <button
                 type="button"
                 onClick={() => setMode('PERIOD')}
-                className={`flex-1 py-1.5 rounded-md font-medium text-center transition cursor-pointer ${
-                  mode === 'PERIOD' ? 'bg-white text-slate-900 font-semibold shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all cursor-pointer ${
+                  mode === 'PERIOD' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Period-Wise
@@ -237,14 +248,14 @@ export function AttendanceTab({
 
           {/* Period Selector (if period mode) */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Period Slot
             </label>
             {mode === 'PERIOD' ? (
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 shadow-xs cursor-pointer transition-all"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(p => (
                   <option key={p} value={p}>
@@ -253,8 +264,9 @@ export function AttendanceTab({
                 ))}
               </select>
             ) : (
-              <div className="bg-slate-100 text-slate-500 rounded-lg px-3 py-2 text-xs font-mono border border-slate-200">
-                Full-Day Session
+              <div className="bg-slate-100 text-slate-500 rounded-xl px-3.5 py-2.5 text-xs font-mono border border-slate-200 font-semibold flex items-center justify-between">
+                <span>Full-Day Assembly</span>
+                <span className="text-emerald-600">Active</span>
               </div>
             )}
           </div>
@@ -263,31 +275,33 @@ export function AttendanceTab({
 
       {/* Feedback Alert */}
       {feedback && (
-        <div className={`p-4 rounded-xl border flex items-start space-x-3 text-xs ${
+        <div className={`p-4 rounded-2xl border flex items-start space-x-3 text-xs shadow-sm ${
           feedback.type === 'success'
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-            : 'bg-rose-50 border-rose-200 text-rose-800'
+            ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900'
+            : 'bg-rose-50/90 border-rose-200 text-rose-900'
         }`}>
           {feedback.type === 'success' ? (
-            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+            <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           ) : (
-            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           )}
-          <span className="font-medium">{feedback.message}</span>
+          <div className="font-semibold">{feedback.message}</div>
         </div>
       )}
 
       {/* Existing Session Alert / Duplicate Guard Indicator */}
       {existingSession && (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-start space-x-2.5">
-            <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+        <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-sm">
+          <div className="flex items-start space-x-3">
+            <div className="p-2 bg-amber-200/60 rounded-xl text-amber-800 shrink-0 mt-0.5">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
             <div>
-              <p className="font-semibold text-amber-900">
-                Existing Finalized Session Detected
+              <p className="font-bold text-amber-950 text-sm">
+                Finalized Attendance Record Found (Double-Entry Guard)
               </p>
-              <p className="text-amber-800 mt-0.5">
-                Attendance for <span className="font-semibold">{selectedClass?.name}-{selectedClass?.section}</span> on {attendanceDate} ({effectivePeriod ? `Period ${effectivePeriod}` : 'Daily'}) was already finalized by <span className="font-semibold">{existingSession.takenByName}</span>.
+              <p className="text-amber-800 mt-1">
+                Attendance for <strong className="font-bold text-amber-950">{selectedClass?.name}-{selectedClass?.section}</strong> on {attendanceDate} ({effectivePeriod ? `Period ${effectivePeriod}` : 'Daily'}) was already locked by <strong className="font-bold text-amber-950">{existingSession.takenByName}</strong>.
               </p>
             </div>
           </div>
@@ -296,14 +310,14 @@ export function AttendanceTab({
               <button
                 type="button"
                 onClick={() => setIsEditMode(true)}
-                className="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition shadow-xs cursor-pointer"
+                className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5 transition shadow-sm cursor-pointer whitespace-nowrap"
               >
                 <Edit3 className="w-3.5 h-3.5" />
-                <span>Enable Audit Adjustment Mode</span>
+                <span>Audit Adjustment Mode</span>
               </button>
             ) : (
-              <span className="bg-amber-200 text-amber-900 px-2.5 py-1 rounded font-semibold font-mono text-[11px]">
-                AUDIT CORRECTION ACTIVE
+              <span className="bg-amber-200 text-amber-900 px-3 py-1.5 rounded-xl font-bold font-mono text-[11px] border border-amber-300/80">
+                AUDIT CORRECTION MODE ACTIVE
               </span>
             )}
           </div>
@@ -311,25 +325,27 @@ export function AttendanceTab({
       )}
 
       {/* Roster & Attendance Form */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="glass-card rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm">
         {/* Controls Bar */}
-        <div className="p-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              Student Attendance Register ({classStudents.length} Enrolled)
+        <div className="p-5 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <h3 className="font-extrabold text-slate-900 text-sm md:text-base flex items-center space-x-2">
+              <Users className="w-4 h-4 text-indigo-600" />
+              <span>Student Register ({classStudents.length} Enrolled)</span>
             </h3>
-            {/* Quick Metrics */}
-            <div className="flex items-center space-x-2 text-[11px] font-mono">
-              <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">
+
+            {/* Quick Metrics Chips */}
+            <div className="flex flex-wrap items-center gap-1.5 text-xs font-mono">
+              <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold border border-emerald-200">
                 P: {presentCount}
               </span>
-              <span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-semibold">
+              <span className="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-lg font-bold border border-rose-200">
                 A: {absentCount}
               </span>
-              <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">
+              <span className="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg font-bold border border-amber-200">
                 L: {lateCount}
               </span>
-              <span className="bg-sky-100 text-sky-800 px-2 py-0.5 rounded font-semibold">
+              <span className="bg-sky-100 text-sky-800 px-2.5 py-1 rounded-lg font-bold border border-sky-200">
                 Leave: {leaveCount}
               </span>
             </div>
@@ -339,9 +355,9 @@ export function AttendanceTab({
             <button
               type="button"
               onClick={handleMarkAllPresent}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1 transition shadow-xs cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-4 h-4" />
               <span>Mark All Present</span>
             </button>
           )}
@@ -350,52 +366,62 @@ export function AttendanceTab({
         {/* Student Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+            <thead className="bg-slate-100/70 text-slate-700 font-bold border-b border-slate-200/80 uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="px-4 py-3">Roll No</th>
-                <th className="px-4 py-3">Student Name</th>
-                <th className="px-4 py-3">Admission No</th>
-                <th className="px-4 py-3">Current Status</th>
-                <th className="px-4 py-3">Status Toggle</th>
-                <th className="px-4 py-3">Remarks / Reason</th>
+                <th className="px-5 py-3.5">Roll No</th>
+                <th className="px-5 py-3.5">Student Name</th>
+                <th className="px-5 py-3.5">Admission No</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5">Quick Action</th>
+                <th className="px-5 py-3.5">Remarks / Reason</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {classStudents.map(student => {
                 const currentStatus = statuses[student.id] || 'PRESENT';
                 const isLocked = existingSession && !isEditMode;
 
                 return (
-                  <tr key={student.id} className="hover:bg-slate-50/60 transition">
-                    <td className="px-4 py-3 font-mono font-bold text-slate-900">
+                  <tr key={student.id} className="hover:bg-indigo-50/25 transition-colors">
+                    <td className="px-5 py-3.5 font-mono font-bold text-slate-900">
                       {student.rollNumber}
                     </td>
-                    <td className="px-4 py-3 font-semibold text-slate-900">
-                      {student.user.name}
+                    <td className="px-5 py-3.5 font-bold text-slate-900">
+                      <div className="flex items-center space-x-2.5">
+                        <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">
+                          {student.user.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <span>{student.user.name}</span>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-slate-500">
+                    <td className="px-5 py-3.5 font-mono text-slate-500">
                       {student.admissionNo}
                     </td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                        currentStatus === 'PRESENT' ? 'bg-emerald-100 text-emerald-800' :
-                        currentStatus === 'ABSENT' ? 'bg-rose-100 text-rose-800' :
-                        currentStatus === 'LATE' ? 'bg-amber-100 text-amber-800' :
-                        'bg-sky-100 text-sky-800'
+                    <td className="px-5 py-3.5">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase inline-flex items-center gap-1 ${
+                        currentStatus === 'PRESENT' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                        currentStatus === 'ABSENT' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+                        currentStatus === 'LATE' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                        'bg-sky-100 text-sky-800 border border-sky-200'
                       }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          currentStatus === 'PRESENT' ? 'bg-emerald-500' :
+                          currentStatus === 'ABSENT' ? 'bg-rose-500' :
+                          currentStatus === 'LATE' ? 'bg-amber-500' : 'bg-sky-500'
+                        }`}></span>
                         {currentStatus}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center space-x-1">
+                    <td className="px-5 py-3.5">
+                      <div className="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200 gap-0.5">
                         <button
                           type="button"
                           disabled={Boolean(isLocked)}
                           onClick={() => handleSetStatus(student.id, 'PRESENT')}
-                          className={`px-2 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                             currentStatus === 'PRESENT'
                               ? 'bg-emerald-600 text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed'
+                              : 'text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
                           }`}
                         >
                           Present
@@ -404,10 +430,10 @@ export function AttendanceTab({
                           type="button"
                           disabled={Boolean(isLocked)}
                           onClick={() => handleSetStatus(student.id, 'ABSENT')}
-                          className={`px-2 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                             currentStatus === 'ABSENT'
                               ? 'bg-rose-600 text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed'
+                              : 'text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
                           }`}
                         >
                           Absent
@@ -416,10 +442,10 @@ export function AttendanceTab({
                           type="button"
                           disabled={Boolean(isLocked)}
                           onClick={() => handleSetStatus(student.id, 'LATE')}
-                          className={`px-2 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                             currentStatus === 'LATE'
-                              ? 'bg-amber-600 text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed'
+                              ? 'bg-amber-500 text-slate-950 shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
                           }`}
                         >
                           Late
@@ -428,24 +454,24 @@ export function AttendanceTab({
                           type="button"
                           disabled={Boolean(isLocked)}
                           onClick={() => handleSetStatus(student.id, 'APPROVED_LEAVE')}
-                          className={`px-2 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                             currentStatus === 'APPROVED_LEAVE'
                               ? 'bg-sky-600 text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed'
+                              : 'text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
                           }`}
                         >
                           Leave
                         </button>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3.5">
                       <input
                         type="text"
                         disabled={Boolean(isLocked)}
                         value={remarks[student.id] || ''}
                         onChange={(e) => setRemarks({ ...remarks, [student.id]: e.target.value })}
-                        placeholder={currentStatus === 'ABSENT' ? 'Specify reason...' : 'Optional notes'}
-                        className="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:opacity-50"
+                        placeholder={currentStatus === 'ABSENT' ? 'Specify absence reason...' : 'Notes'}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:opacity-50"
                       />
                     </td>
                   </tr>
@@ -456,18 +482,18 @@ export function AttendanceTab({
         </div>
 
         {/* Action Submit Footer */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div className="p-5 border-t border-slate-100 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <p className="text-xs text-slate-500 font-mono">
             {existingSession && !isEditMode 
-              ? '🔒 Record finalized. Click "Enable Audit Adjustment Mode" to update.'
-              : '⚡ Submitting records will write an immutable audit log entry.'}
+              ? '🔒 Record finalized. Click "Audit Adjustment Mode" to make certified corrections.'
+              : '⚡ Finalizing records commits an immutable compliance log with actor fingerprint.'}
           </p>
 
           {(!existingSession || isEditMode) && (
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-5 py-2.5 rounded-lg flex items-center space-x-1.5 shadow-sm transition cursor-pointer"
+              className="bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white font-bold text-xs px-6 py-2.5 rounded-xl flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer"
             >
               <CheckCircle className="w-4 h-4 text-emerald-400" />
               <span>{isEditMode ? 'Commit Audited Correction' : 'Finalize & Lock Attendance'}</span>

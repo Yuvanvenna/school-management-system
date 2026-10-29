@@ -1,18 +1,28 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   GraduationCap, 
-  CalendarCheck, 
+  CalendarCheck2, 
   ShieldAlert, 
   Building, 
   CheckCircle2, 
-  ArrowUpRight,
+  ArrowUpRight, 
   TrendingUp,
-  Layers
+  Layers,
+  Sparkles,
+  Baby,
+  BookOpen,
+  FileText,
+  UploadCloud,
+  ChevronRight,
+  ShieldCheck,
+  Award,
+  Clock
 } from 'lucide-react';
 import { School, ClassSection, StudentProfile, TeacherProfile, AttendanceSession, AuditLog } from '@/types';
+import { TabType } from '../layout/Sidebar';
 
 interface OverviewTabProps {
   activeSchool: School;
@@ -21,7 +31,7 @@ interface OverviewTabProps {
   teachers: TeacherProfile[];
   attendanceSessions: AttendanceSession[];
   auditLogs: AuditLog[];
-  onNavigateTab: (tab: any) => void;
+  onNavigateTab: (tab: TabType) => void;
 }
 
 export function OverviewTab({
@@ -38,8 +48,25 @@ export function OverviewTab({
   const totalTeachers = teachers.length;
   const totalClasses = classes.length;
 
-  // Today's attendance
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Safe client-rendered date to avoid Next.js 16 prerender unstable Date evaluation
+  const [todayStr, setTodayStr] = useState<string>('2026-10-19');
+  const [displayDate, setDisplayDate] = useState<string>('Monday, October 19, 2026');
+
+  useEffect(() => {
+    try {
+      const now = new Date();
+      setTodayStr(now.toISOString().split('T')[0]);
+      setDisplayDate(now.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }));
+    } catch {
+      // fallback
+    }
+  }, []);
+
   const todaySessions = attendanceSessions.filter(s => s.date === todayStr || s.date === '2026-10-19');
   let totalMarked = 0;
   let totalPresent = 0;
@@ -76,239 +103,326 @@ export function OverviewTab({
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/80 rounded-xl p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Government K-10 Institutional Portal</span>
-            <span>•</span>
-            <span className="text-slate-300 font-mono">Affiliation: {activeSchool.affiliationNo}</span>
+      {/* High-Impact Institutional Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 border border-slate-800 p-6 md:p-8 text-white shadow-xl shadow-slate-950/20">
+        {/* Ambient background glows */}
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-1/3 -mb-12 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Government K-10 Institutional Portal</span>
+              </span>
+              <span className="text-slate-400 text-xs font-mono">•</span>
+              <span className="text-slate-300 text-xs font-mono flex items-center space-x-1">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>{displayDate}</span>
+              </span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+              {activeSchool.name}
+            </h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Unified digital governance across Early Childhood (Nursery/KG) through Secondary School (Class 10). Row-Level Security tenant isolation with tamper-proof audit trails.
+            </p>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            {activeSchool.name}
-          </h2>
-          <p className="text-sm text-slate-300 mt-1 max-w-2xl">
-            Unified institutional governance, daily & period-wise attendance, developmental early years tracking, and certified academic grading.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 self-start md:self-center">
-          <button
-            onClick={() => onNavigateTab('attendance')}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-xs flex items-center space-x-1.5 shadow transition cursor-pointer"
-          >
-            <CalendarCheck className="w-4 h-4" />
-            <span>Mark Attendance</span>
-          </button>
-          <button
-            onClick={() => onNavigateTab('roster-import')}
-            className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-4 py-2 rounded-lg text-xs border border-slate-600 flex items-center space-x-1.5 transition cursor-pointer"
-          >
-            <Users className="w-4 h-4" />
-            <span>Enroll Students</span>
-          </button>
+
+          {/* Quick Action CTAs */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+            <button
+              onClick={() => onNavigateTab('attendance')}
+              className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/25 transition-all transform active:scale-95 cursor-pointer"
+            >
+              <CalendarCheck2 className="w-4 h-4 text-slate-950" />
+              <span>Mark Roll Call</span>
+            </button>
+            <button
+              onClick={() => onNavigateTab('report-card')}
+              className="w-full sm:w-auto bg-slate-900/90 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-xl text-xs border border-slate-700/80 hover:border-slate-600 flex items-center justify-center space-x-2 transition-all cursor-pointer backdrop-blur-sm"
+            >
+              <Award className="w-4 h-4 text-amber-400" />
+              <span>Report Cards</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Primary KPI Grid */}
+      {/* Primary KPI Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Students */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
-            <span>TOTAL ENROLLED STUDENTS</span>
-            <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-              <Users className="w-4 h-4" />
+        <div className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Enrolled Students</span>
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+              <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">{totalStudents}</span>
-            <span className="text-xs text-emerald-600 font-medium flex items-center">
-              <TrendingUp className="w-3 h-3 mr-0.5" /> Active Roster
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{totalStudents}</span>
+            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 inline-flex items-center">
+              <TrendingUp className="w-3 h-3 mr-1" /> Active Roster
             </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-            <span>Verified Roll Records</span>
-            <span className="text-slate-700 font-semibold">{totalStudents} Students</span>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>Verified Roll Numbers</span>
+            <span className="text-slate-800 font-bold">{totalStudents} Students</span>
           </div>
         </div>
 
         {/* Teaching Faculty */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
-            <span>CERTIFIED FACULTY</span>
-            <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
-              <GraduationCap className="w-4 h-4" />
+        <div className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Certified Faculty</span>
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+              <GraduationCap className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">{totalTeachers}</span>
-            <span className="text-xs text-purple-600 font-medium">Full-Time Staff</span>
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{totalTeachers}</span>
+            <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200/60">
+              Staff 100% Assigned
+            </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-            <span>Ratio 1:{Math.round(totalStudents / (totalTeachers || 1))}</span>
-            <span className="text-emerald-600 font-semibold">100% Assigned</span>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>Student-Teacher Ratio</span>
+            <span className="text-emerald-700 font-bold">1:{Math.round(totalStudents / (totalTeachers || 1))}</span>
           </div>
         </div>
 
-        {/* Attendance Rate */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
-            <span>ATTENDANCE RATE TODAY</span>
-            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
-              <CalendarCheck className="w-4 h-4" />
+        {/* Daily Attendance Rate */}
+        <div className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Today's Attendance</span>
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+              <CalendarCheck2 className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">{attendanceRate}%</span>
-            <span className="text-xs text-emerald-600 font-medium flex items-center">
-              <CheckCircle2 className="w-3 h-3 mr-0.5" /> High Compliance
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{attendanceRate}%</span>
+            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 inline-flex items-center">
+              <CheckCircle2 className="w-3 h-3 mr-1" /> Target Compliant
             </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-            <span>Sessions Recorded</span>
-            <span className="text-slate-700 font-semibold">{todaySessions.length} finalized</span>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>Finalized Sessions</span>
+            <span className="text-slate-800 font-bold">{todaySessions.length} sessions locked</span>
           </div>
         </div>
 
         {/* Audited Security Logs */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
-            <span>AUDIT TRAIL EVENTS</span>
-            <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
-              <ShieldAlert className="w-4 h-4" />
+        <div className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Security Audit Ledger</span>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+              <ShieldAlert className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">{auditLogs.length}</span>
-            <span className="text-xs text-slate-500 font-medium font-mono">Immutable</span>
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{auditLogs.length}</span>
+            <span className="text-xs font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60">
+              Immutable Ledger
+            </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-            <span>RLS Isolation</span>
-            <span className="text-emerald-700 font-semibold">Row-Level Safe</span>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>RLS Context</span>
+            <span className="text-emerald-700 font-bold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> Isolated
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Grade Band Distribution */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
+      {/* Differentiated Educational Band Segmentation */}
+      <div className="glass-card rounded-2xl p-6 border border-slate-200/90 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-2">
           <div>
-            <h3 className="font-bold text-slate-900 text-sm flex items-center space-x-2">
-              <Layers className="w-4 h-4 text-slate-700" />
-              <span>Institutional Band Segmentation (Nursery to Class 10)</span>
+            <h3 className="font-extrabold text-slate-900 text-base flex items-center space-x-2">
+              <Layers className="w-5 h-5 text-indigo-600" />
+              <span>Differentiated Age-Band Architecture (K–10)</span>
             </h3>
-            <p className="text-xs text-slate-500">
-              Class-level feature engine segregates early childhood milestones from secondary board examinations.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Specific pedagogical workflows tailored for early sensory exploration vs high-stakes secondary board examination.
             </p>
           </div>
+          <span className="text-xs font-mono font-medium px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+            {classes.length} Academic Sections
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Early Years */}
-          <div className="p-3.5 rounded-lg border border-pink-200 bg-pink-50/40">
-            <div className="flex items-center justify-between text-xs font-semibold text-pink-900">
-              <span>Early Years</span>
-              <span className="px-1.5 py-0.5 rounded bg-pink-200 text-pink-800 text-[10px] font-mono">Nursery - UKG</span>
+          <div 
+            onClick={() => onNavigateTab('early-years')}
+            className="group cursor-pointer p-5 rounded-2xl border border-rose-200/70 bg-gradient-to-b from-rose-50/50 to-white hover:border-rose-300 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between text-xs font-bold text-rose-900">
+              <span className="flex items-center space-x-1.5">
+                <Baby className="w-4 h-4 text-rose-600" />
+                <span>Early Years</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-mono">Nursery - UKG</span>
             </div>
-            <p className="text-2xl font-bold text-pink-950 mt-2">{earlyYearsCount}</p>
-            <p className="text-[11px] text-pink-800 mt-1">Activity diaries, milestone tracking & care logs</p>
+            <div className="flex items-baseline justify-between mt-3">
+              <p className="text-3xl font-black text-rose-950">{earlyYearsCount}</p>
+              <span className="text-xs text-rose-600 font-semibold group-hover:translate-x-1 transition-transform flex items-center">
+                Open <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+            <p className="text-xs text-rose-700/90 mt-2 leading-relaxed">
+              Sensory observation logs, nap routines, gross & fine motor milestone tracking.
+            </p>
           </div>
 
           {/* Primary */}
-          <div className="p-3.5 rounded-lg border border-blue-200 bg-blue-50/40">
-            <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
-              <span>Primary</span>
-              <span className="px-1.5 py-0.5 rounded bg-blue-200 text-blue-800 text-[10px] font-mono">Classes 1–5</span>
+          <div 
+            onClick={() => onNavigateTab('gradebook')}
+            className="group cursor-pointer p-5 rounded-2xl border border-sky-200/70 bg-gradient-to-b from-sky-50/50 to-white hover:border-sky-300 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between text-xs font-bold text-sky-900">
+              <span className="flex items-center space-x-1.5">
+                <BookOpen className="w-4 h-4 text-sky-600" />
+                <span>Primary Band</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-mono">Classes 1–5</span>
             </div>
-            <p className="text-2xl font-bold text-blue-950 mt-2">{primaryCount}</p>
-            <p className="text-[11px] text-blue-800 mt-1">Letter grades, class tests & parent homework view</p>
+            <div className="flex items-baseline justify-between mt-3">
+              <p className="text-3xl font-black text-sky-950">{primaryCount}</p>
+              <span className="text-xs text-sky-600 font-semibold group-hover:translate-x-1 transition-transform flex items-center">
+                Open <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+            <p className="text-xs text-sky-700/90 mt-2 leading-relaxed">
+              Foundational literacy, descriptive letter grades, parent homework notifications.
+            </p>
           </div>
 
           {/* Middle */}
-          <div className="p-3.5 rounded-lg border border-indigo-200 bg-indigo-50/40">
-            <div className="flex items-center justify-between text-xs font-semibold text-indigo-900">
-              <span>Middle Band</span>
-              <span className="px-1.5 py-0.5 rounded bg-indigo-200 text-indigo-800 text-[10px] font-mono">Classes 6–8</span>
+          <div 
+            onClick={() => onNavigateTab('attendance')}
+            className="group cursor-pointer p-5 rounded-2xl border border-indigo-200/70 bg-gradient-to-b from-indigo-50/50 to-white hover:border-indigo-300 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between text-xs font-bold text-indigo-900">
+              <span className="flex items-center space-x-1.5">
+                <CalendarCheck2 className="w-4 h-4 text-indigo-600" />
+                <span>Middle Band</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-mono">Classes 6–8</span>
             </div>
-            <p className="text-2xl font-bold text-indigo-950 mt-2">{middleCount}</p>
-            <p className="text-[11px] text-indigo-800 mt-1">Period-wise attendance & subject teacher workflows</p>
+            <div className="flex items-baseline justify-between mt-3">
+              <p className="text-3xl font-black text-indigo-950">{middleCount}</p>
+              <span className="text-xs text-indigo-600 font-semibold group-hover:translate-x-1 transition-transform flex items-center">
+                Open <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+            <p className="text-xs text-indigo-700/90 mt-2 leading-relaxed">
+              Period-wise attendance verification, specialized subject teacher roll call.
+            </p>
           </div>
 
           {/* Secondary */}
-          <div className="p-3.5 rounded-lg border border-emerald-200 bg-emerald-50/40">
-            <div className="flex items-center justify-between text-xs font-semibold text-emerald-900">
-              <span>Secondary</span>
-              <span className="px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800 text-[10px] font-mono">Classes 9–10</span>
+          <div 
+            onClick={() => onNavigateTab('gradebook')}
+            className="group cursor-pointer p-5 rounded-2xl border border-emerald-200/70 bg-gradient-to-b from-emerald-50/50 to-white hover:border-emerald-300 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between text-xs font-bold text-emerald-900">
+              <span className="flex items-center space-x-1.5">
+                <GraduationCap className="w-4 h-4 text-emerald-600" />
+                <span>Secondary Band</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono">Classes 9–10</span>
             </div>
-            <p className="text-2xl font-bold text-emerald-950 mt-2">{secondaryCount}</p>
-            <p className="text-[11px] text-emerald-800 mt-1">Board prep, strict grade locking & audit trails</p>
+            <div className="flex items-baseline justify-between mt-3">
+              <p className="text-3xl font-black text-emerald-950">{secondaryCount}</p>
+              <span className="text-xs text-emerald-600 font-semibold group-hover:translate-x-1 transition-transform flex items-center">
+                Open <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+            <p className="text-xs text-emerald-700/90 mt-2 leading-relaxed">
+              National board preparation, strict CBSE 9-point scale grading & locked marks.
+            </p>
           </div>
         </div>
       </div>
 
       {/* Class Section Roster Directory */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div className="glass-card rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-bold text-slate-900 text-sm flex items-center space-x-2">
+            <h3 className="font-bold text-slate-900 text-sm md:text-base flex items-center space-x-2">
               <Building className="w-4 h-4 text-slate-700" />
-              <span>Active Classroom Roster & Class Teachers</span>
+              <span>Configured Academic Class Sections</span>
             </h3>
-            <p className="text-xs text-slate-500">Configured classes for academic year 2026-2027</p>
+            <p className="text-xs text-slate-500 mt-0.5">Assigned Class Teachers, Room Allocations, and Student Roster Counts</p>
           </div>
-          <span className="text-xs font-mono text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded">
-            {classes.length} Configured Sections
-          </span>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-mono text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full font-medium">
+              Academic Session 2026-2027
+            </span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+            <thead className="bg-slate-100/70 text-slate-700 font-bold border-b border-slate-200/80 uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="px-4 py-3">Class & Section</th>
-                <th className="px-4 py-3">Educational Band</th>
-                <th className="px-4 py-3">Assigned Class Teacher</th>
-                <th className="px-4 py-3">Room / Wing</th>
-                <th className="px-4 py-3">Enrolled Count</th>
-                <th className="px-4 py-3 text-right">Action</th>
+                <th className="px-5 py-3.5">Class & Section</th>
+                <th className="px-5 py-3.5">Educational Band</th>
+                <th className="px-5 py-3.5">Assigned Class Teacher</th>
+                <th className="px-5 py-3.5">Room / Wing</th>
+                <th className="px-5 py-3.5">Enrolled / Capacity</th>
+                <th className="px-5 py-3.5 text-right">Quick Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {classes.map(cls => {
                 const classStudents = students.filter(s => s.classId === cls.id);
                 const teacher = teachers.find(t => t.userId === cls.classTeacherId);
+                const fillRatio = Math.round((classStudents.length / cls.capacity) * 100);
 
                 return (
-                  <tr key={cls.id} className="hover:bg-slate-50/80 transition">
-                    <td className="px-4 py-3 font-semibold text-slate-900">
-                      {cls.name} - Section {cls.section}
+                  <tr key={cls.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <td className="px-5 py-4 font-bold text-slate-900 flex items-center space-x-2">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                      <span>{cls.name} - Section {cls.section}</span>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${
-                        cls.band === 'EARLY_YEARS' ? 'bg-pink-100 text-pink-800' :
-                        cls.band === 'PRIMARY' ? 'bg-blue-100 text-blue-800' :
-                        cls.band === 'MIDDLE' ? 'bg-indigo-100 text-indigo-800' :
-                        'bg-emerald-100 text-emerald-800'
+                    <td className="px-5 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold ${
+                        cls.band === 'EARLY_YEARS' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+                        cls.band === 'PRIMARY' ? 'bg-sky-100 text-sky-800 border border-sky-200' :
+                        cls.band === 'MIDDLE' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
+                        'bg-emerald-100 text-emerald-800 border border-emerald-200'
                       }`}>
                         {cls.band.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-800 font-medium">
-                      {teacher ? teacher.user.name : 'Unassigned'}
+                    <td className="px-5 py-4 text-slate-900 font-medium">
+                      {teacher ? teacher.user.name : <span className="text-slate-400 italic">Unassigned</span>}
                     </td>
-                    <td className="px-4 py-3 font-mono text-slate-500">
+                    <td className="px-5 py-4 font-mono text-slate-500">
                       {cls.roomNumber || 'Main Wing'}
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="font-semibold text-slate-900">{classStudents.length}</span>
-                      <span className="text-slate-400 text-[11px]"> / {cls.capacity} max</span>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-slate-900">{classStudents.length}</span>
+                        <span className="text-slate-400 text-[11px]">/ {cls.capacity}</span>
+                        <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full ${fillRatio > 80 ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                            style={{ width: `${Math.min(fillRatio, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-5 py-4 text-right">
                       <button
                         onClick={() => onNavigateTab('attendance')}
-                        className="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center space-x-1 cursor-pointer"
+                        className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1 rounded-lg font-semibold inline-flex items-center space-x-1 cursor-pointer transition-colors"
                       >
-                        <span>Manage</span>
+                        <span>Take Roll</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </button>
                     </td>
